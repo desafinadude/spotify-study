@@ -1,0 +1,18 @@
+{
+  "name": "Spotify Study",
+  "description": "Change the tempo and add markers to Spotify tracks",
+  "version": "0.9",
+  "permissions": [
+    "storage"
+  ],
+  "icons": { "16": "spotify-study-16.png",
+           "48": "spotify-study-48.png",
+          "128": "spotify-study-128.png" },
+  "content_scripts": [
+    {
+      "matches": ["https://open.spotify.com/*"],
+      "js": ["spotify-study.js"]
+    }
+  ],
+  "manifest_version": 2
+}
