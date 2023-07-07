@@ -1,6 +1,6 @@
 /* ======== Start of style string literal ======== */
 var style = `
-	.current-speed {
+	.current_speed {
 		color: #fff;
 		font-size: 2em;
 	}
@@ -26,34 +26,49 @@ var style = `
 		border-radius: 5px;
 	}
 
-	.marker-title {
+	.marker_title {
 		color: #fff;
 		font-weight: bold;
 	}
 
-	.markers-row {
-		display: flex;
-	}
-
-	.markers-row .marker-times {
-		flex: 1 1 auto;
-	}
-
-	.markers-row .marker-play {
-		flex: 1 1 auto;
-		text-align: right;
-	}
-
-
-	.marker-start, .marker-end, .marker-sep-to {
+	.marker_play, .marker_delete {
 		display: inline-block;
-		font-size: 0.8em;
-		margin-right: 8px;
+		width: 36px;
 	}
 
-	.marker-playing {
+	.marker_playing {
 		background-color: #1A1A1A;
 	}
+
+	.marker_layout {  display: grid;
+		grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+		grid-template-rows: 1fr 1fr;
+		gap: 0px 0px;
+		grid-auto-flow: row;
+		grid-template-areas:
+		  "marker_name marker_name marker_name marker_name buttons buttons"
+		  "start_time start_time start_time end_time end_time end_time";
+	  }
+	  
+	  .marker_name {
+		align-self: center; 
+		grid-area: marker_name; 
+	  }
+	  .buttons {
+		justify-self: end; 
+		align-self: center; 
+		grid-area: buttons; 
+		width: 80px; 
+	  }
+	  
+	  .start_time { grid-area: start_time; }
+	  
+	  .end_time { grid-area: end_time; }
+
+	  .icon {
+		cursor: pointer;
+	  }
+	  
 
 `;
 
@@ -73,6 +88,7 @@ var code = `
 		if(message == 'video' || message == 'audio'){ /* Checking if spotify scripts are making a video or audio element */
 			spotifyElements.push(element);
 			
+
 		}
 		return element /* return the element and complete the loop so the page is allowed to be made */
 	};
@@ -87,7 +103,9 @@ var code = `
 		var currentSectionStart = null;
 		var currentSectionEnd = null;
 
-		spotifyElements[0].addEventListener('playing', songPlaying(spotifyElements[0]));
+		const playIcon = '<svg class="icon play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36"><path fill="#fff" d="M10,16.5V7.5L16,12M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>';
+		const pauseIcon = '<svg class="icon pause-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36"><path fill="#fff" d="M15,16H13V8H15M11,16H9V8H11M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>';
+		const deleteIcon = '<svg class="icon delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36"><path fill="#fff" d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M17,7H14.5L13.5,6H10.5L9.5,7H7V9H17V7M9,18H15A1,1 0 0,0 16,17V10H8V17A1,1 0 0,0 9,18Z" /></svg>';
 		
 
 		/* add Celerity to the page */
@@ -98,14 +116,14 @@ var code = `
 
 		/* add speed indicator */
 		var currentSpd = document.createElement('div');
-		currentSpd.id = 'current-speed';
-		currentSpd.classList.add('current-speed');
+		currentSpd.id = 'current_speed';
+		currentSpd.classList.add('current_speed');
 		currentSpd.innerHTML = lastSpeed + 'x';
 
 		/* add markers list */
 		var markersList = document.createElement('ul');
-		markersList.id = 'markers-list';
-		markersList.classList.add('markers-list');
+		markersList.id = 'markers_list';
+		markersList.classList.add('markers_list');
 
 		function calculateTime(seconds) {
 			var minutes = Math.floor(seconds / 60);
@@ -180,7 +198,7 @@ var code = `
 				var marker = currentMarkers[i];
 				var markerElement = document.createElement('li');
 				markerElement.classList.add('marker');
-				markerElement.innerHTML = '<div class="marker-title" contenteditable="true" onblur="() => updateMarkerName()">' + marker.name + '</div><div class="markers-row"><div class="marker-times"><div class="marker-start">' + calculateTime(parseInt(marker.start)) + '</div><div class="marker-sep-to"> - </div><div class="marker-end">' + calculateTime(parseInt(marker.end)) + '</div></div><div class="marker-play"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="#fff" d="M10,16.5V7.5L16,12M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg></div></div>';
+				markerElement.innerHTML = '<div class="marker_layout"><div class="marker_name"><div class="marker_title">' + marker.name + '</div></div><div class="buttons"><div class="marker_play">' + playIcon + '</div><div class="marker_delete">' + deleteIcon + '</div></div><div class="start_time"><div class="marker_start">' + calculateTime(parseInt(marker.start)) + '</div></div><div class="end_time"><div class="marker_end">' + calculateTime(parseInt(marker.end)) + '</div></div></div>';
 				markerElement.setAttribute('data-start', marker.start);
 				markerElement.setAttribute('data-end', marker.end);
 				markerElement.setAttribute('data-id', marker.id);
@@ -197,33 +215,33 @@ var code = `
 
 		function addMarkerEventListeners() {
 			// add event listeners to markers
-			document.querySelectorAll('.marker-play').forEach(function(el) {
+			document.querySelectorAll('.marker_play').forEach(function(el) {
 				el.addEventListener('click', function(e) {
 
 					document.querySelectorAll('.marker').forEach(function(el){
-						el.classList.remove('marker-playing');
+						el.classList.remove('marker_playing');
 					});
 					
 					// parent of this
-					var parent = this.parentNode.parentNode;
+					var parent = this.parentNode.parentNode.parentNode;
 
 					if(currentSection != parent.getAttribute('data-id')) {
 						for(var i = 0; i < spotifyElements.length; i++){
 							spotifyElements[i].play();
 						}
-						parent.classList.add('marker-playing');
+						parent.classList.add('marker_playing');
 						var start = parent.getAttribute('data-start');
 						var end = parent.getAttribute('data-end');
 						var id = parent.getAttribute('data-id');
-						el.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="#fff" d="M15,16H13V8H15M11,16H9V8H11M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>';
+						el.innerHTML = pauseIcon;
 						currentSection = id;
 						currentSectionStart = start;
 						currentSectionEnd = end;
 						changePosition(start);
 
 					} else {
-						this.classList.remove('marker-playing');
-						el.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="#fff" d="M10,16.5V7.5L16,12M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>';
+						this.classList.remove('marker_playing');
+						el.innerHTML = playIcon;
 						for(var i = 0; i < spotifyElements.length; i++){
 							spotifyElements[i].pause();
 							currentSection = null;
@@ -231,6 +249,14 @@ var code = `
 							currentSectionEnd = null;
 						}
 					}
+				})
+			})
+
+			document.querySelectorAll('.marker_delete').forEach(function(el) {
+				el.addEventListener('click', function(e) {
+					var parent = this.parentNode.parentNode.parentNode;
+					var id = parent.getAttribute('data-id');
+					deleteMarker(id);
 				})
 			})
 		}
@@ -315,7 +341,7 @@ var code = `
 			for(var i = 0; i < markers.length; i++){
 				var marker = markers[i];
 				if(marker.id == currentSection){
-					marker.name = document.querySelector('.marker-playing .marker-title').innerHTML;
+					marker.name = document.querySelector('.marker_playing .marker_title').innerHTML;
 				}
 			}
 			celerityData.markers = markers;
@@ -374,7 +400,9 @@ var code = `
 					document.querySelector('#celerity').appendChild(currentSpd);
 					document.querySelector('#celerity').appendChild(markersList);
 					listMarkers();
-
+					if(spotifyElements.length > 0){ 
+						spotifyElements[0].addEventListener('playing', songPlaying(spotifyElements[0]));
+					}
 					
 				} catch {
 					setTimeout(timeout, 100);

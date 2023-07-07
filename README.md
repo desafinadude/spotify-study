@@ -22,6 +22,11 @@ Change the tempo and add markers to Spotify tracks
 
 `DownArrow` : Adjust section send time by -1 seconds
 
+## Issues
+
+- You must have a track active in the spotify player. Refresh the page when changing tracks to load markers.(FIX 1.0)
+- Pressing play on a marker will only work if you've pressed play at least once on the actual player. (FIX 1.0)
+
 ## Todo
 
 #### 0.9.1
