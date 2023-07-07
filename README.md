@@ -37,3 +37,6 @@ Change the tempo and add markers to Spotify tracks
 #### 1.0
 - List all available tracks
 - Init Spotify Study without reload
+
+## Credit
+Built on the great work here: https://github.com/intOrfloat/spotitySpeedExtension
