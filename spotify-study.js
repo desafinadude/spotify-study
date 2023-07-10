@@ -21,6 +21,10 @@ var style = `
 		font-weight: bold;
 	}
 
+	.markers_list {
+		list-style: none;
+	}
+
 	.marker {
 		padding: 5px;
 		border-radius: 5px;
@@ -31,43 +35,126 @@ var style = `
 		font-weight: bold;
 	}
 
-	.marker_play, .marker_delete {
-		display: inline-block;
-		width: 36px;
+	
+
+	.inc, .dec {
+		background: #666;
+		color: #000;
+		font-weight: bold;
+		text-align: center;
+		border: 1px solid #666;
+		cursor: pointer;
+	}
+
+	.dec {
+		border-radius: 5px 0 0 5px;
+	}
+
+	.inc {
+		border-radius: 0 5px 5px 0;
+	}
+
+	.inc:hover, .dec:hover {
+		background: #1FDF64;
+		border: 1px solid #1FDF64;
 	}
 
 	.marker_playing {
 		background-color: #1A1A1A;
 	}
 
+	.controls {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 1fr;
+		gap: 0px 0px;
+		grid-auto-flow: row;
+		grid-template-areas: "speed add_marker";
+		margin-bottom: 10px;
+	}
+
+	.speed {
+		grid-area: speed;
+		align-self: center;
+	}
+
+	.add_marker {
+		grid-area: add_marker;
+		align-self: center;
+		justify-self: end;
+		cursor: pointer;
+	}
+
 	.marker_layout {  display: grid;
 		grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
 		grid-template-rows: 1fr 1fr;
-		gap: 0px 0px;
+		gap: 5px 5px;
 		grid-auto-flow: row;
 		grid-template-areas:
-		  "marker_name marker_name marker_name marker_name buttons buttons"
+		  "marker_play marker_name marker_name marker_name marker_name marker_delete"
 		  "start_time start_time start_time end_time end_time end_time";
 	  }
 	  
-	  .marker_name {
+	.marker_name {
 		align-self: center; 
 		grid-area: marker_name; 
-	  }
-	  .buttons {
-		justify-self: end; 
-		align-self: center; 
-		grid-area: buttons; 
-		width: 80px; 
-	  }
-	  
-	  .start_time { grid-area: start_time; }
-	  
-	  .end_time { grid-area: end_time; }
+	}
 
-	  .icon {
+	.marker_play {
+		align-self: center;
+		grid-area: marker_play;
+	}
+
+	.marker_delete {
+		align-self: center;
+		grid-area: marker_delete;
+		justify-self: end; 
+	}
+
+	
+	  
+	.start_time { 
+		grid-area: start_time; 
+	}
+	
+	.end_time { 
+		grid-area: end_time; 
+	}
+
+	.icon {
 		cursor: pointer;
-	  }
+	}
+
+	.icon:hover path {
+		fill: #1FDF64;
+	}
+
+	.marker_time_container {  
+		display: grid;
+		grid-template-columns: 1fr 2fr 1fr;
+		grid-template-rows: 1fr;
+		gap: 0px 0px;
+		grid-auto-flow: row;
+		grid-template-areas: "dec time inc";
+	}
+
+	.dec { 
+		grid-area: dec;
+		align-self: center;  
+	}
+
+	.time { 
+		grid-area: time; 
+		align-self: center; 
+		text-align: center;
+		border: 1px solid #666;
+	}
+
+	.inc { 
+		grid-area: inc;
+		align-self: center;  
+	}
+
 	  
 
 `;
@@ -102,28 +189,28 @@ var code = `
 		var currentSection = null;
 		var currentSectionStart = null;
 		var currentSectionEnd = null;
-
-		const playIcon = '<svg class="icon play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36"><path fill="#fff" d="M10,16.5V7.5L16,12M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>';
-		const pauseIcon = '<svg class="icon pause-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36"><path fill="#fff" d="M15,16H13V8H15M11,16H9V8H11M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>';
-		const deleteIcon = '<svg class="icon delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36"><path fill="#fff" d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M17,7H14.5L13.5,6H10.5L9.5,7H7V9H17V7M9,18H15A1,1 0 0,0 16,17V10H8V17A1,1 0 0,0 9,18Z" /></svg>';
 		
+		const addMarkerIcon = '<svg class="add_marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30"><title>plus</title><path fill="#eee" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>';
+
+		const playIcon = '<svg class="icon play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>play</title><path fill="#eee" d="M8,5.14V19.14L19,12.14L8,5.14Z" /></svg>';
+		
+		const pauseIcon = '<svg class="icon pause-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>pause</title><path fill="#eee" d="M14,19H18V5H14M6,19H10V5H6V19Z" /></svg>';
+
+		const deleteIcon = '<svg class="icon delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>delete</title><path fill="#eee" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg>';
 
 		/* add Celerity to the page */
 		var celerity = document.createElement('div');
 		celerity.id = 'celerity';
 		celerity.classList.add('celerity');
-		celerity.innerHTML = '<header>Spotify Study</header>';
+		celerity.innerHTML = '\
+			<header>Spotify Study</header> \
+			<div class="controls"> \
+				<div id="current_speed" class="current_speed">' + lastSpeed + 'x</div> \
+				<div class="add_marker">' + addMarkerIcon + '</div> \
+			</div> \
+			<div id="markers_list" class="markers_list"></div>\
+		';
 
-		/* add speed indicator */
-		var currentSpd = document.createElement('div');
-		currentSpd.id = 'current_speed';
-		currentSpd.classList.add('current_speed');
-		currentSpd.innerHTML = lastSpeed + 'x';
-
-		/* add markers list */
-		var markersList = document.createElement('ul');
-		markersList.id = 'markers_list';
-		markersList.classList.add('markers_list');
 
 		function calculateTime(seconds) {
 			var minutes = Math.floor(seconds / 60);
@@ -193,16 +280,30 @@ var code = `
 				}
 			}
 
-			markersList.innerHTML = '';
+			document.querySelector('.markers_list').innerHTML = '';
 			for(var i = 0; i < currentMarkers.length; i++){
 				var marker = currentMarkers[i];
 				var markerElement = document.createElement('li');
 				markerElement.classList.add('marker');
-				markerElement.innerHTML = '<div class="marker_layout"><div class="marker_name"><div class="marker_title">' + marker.name + '</div></div><div class="buttons"><div class="marker_play">' + playIcon + '</div><div class="marker_delete">' + deleteIcon + '</div></div><div class="start_time"><div class="marker_start">' + calculateTime(parseInt(marker.start)) + '</div></div><div class="end_time"><div class="marker_end">' + calculateTime(parseInt(marker.end)) + '</div></div></div>';
+				markerElement.innerHTML = ' \
+				<div class="marker_layout"> \
+					<div class="marker_play">' + playIcon + '</div> \
+					<div class="marker_name"><div class="marker_title">' + marker.name + '</div></div> \
+					<div class="marker_delete">' + deleteIcon + '</div> \
+					<div class="marker_time_container start_time"> \
+						<div class="dec">-</div> \
+						<div class="time"><div class="marker_start">' + calculateTime(parseInt(marker.start)) + '</div></div> \
+						<div class="inc">+</div> \
+					</div> \
+					<div class="marker_time_container end_time"> \
+						<div class="dec">-</div> \
+						<div class="time"><div class="marker_end">' + calculateTime(parseInt(marker.end)) + '</div></div> \
+						<div class="inc">+</div> \
+					</div>';
 				markerElement.setAttribute('data-start', marker.start);
 				markerElement.setAttribute('data-end', marker.end);
 				markerElement.setAttribute('data-id', marker.id);
-				markersList.appendChild(markerElement);
+				document.querySelector('.markers_list').appendChild(markerElement);
 			}
 
 			addMarkerEventListeners();
@@ -223,7 +324,7 @@ var code = `
 					});
 					
 					// parent of this
-					var parent = this.parentNode.parentNode.parentNode;
+					var parent = this.parentNode.parentNode;
 
 					if(currentSection != parent.getAttribute('data-id')) {
 						for(var i = 0; i < spotifyElements.length; i++){
@@ -254,11 +355,116 @@ var code = `
 
 			document.querySelectorAll('.marker_delete').forEach(function(el) {
 				el.addEventListener('click', function(e) {
-					var parent = this.parentNode.parentNode.parentNode;
+					var parent = this.parentNode.parentNode;
 					var id = parent.getAttribute('data-id');
 					deleteMarker(id);
 				})
 			})
+
+			document.querySelectorAll('.dec').forEach(function(el) {
+
+				el.addEventListener('click', function(e) {
+
+					var parent = this.parentNode.parentNode.parentNode;
+
+					var id = parent.getAttribute('data-id');
+
+					var markers = celerityData.markers;
+
+					if(this.parentNode.classList.contains('start_time')) {
+						var start = parseInt(parent.getAttribute('data-start'));
+						var newStart = start - 1;
+						if(newStart < 0) {
+							newStart = 0;
+						}
+						var markers = celerityData.markers;
+						for(var i = 0; i < markers.length; i++){
+							var marker = markers[i];
+							if(marker.id == id) {
+								marker.start = newStart;
+							}
+							if(currentSection == id) {
+								currentSectionStart = newStart;
+								changePosition(newStart);
+							}
+						}
+
+					} else {
+						var end = parseInt(parent.getAttribute('data-end'));
+						var newEnd = end - 1;
+						if(newEnd < 0) {
+							newEnd = 0;
+						}
+						var markers = celerityData.markers;
+						for(var i = 0; i < markers.length; i++){
+							var marker = markers[i];
+							if(marker.id == id) {
+								marker.end = newEnd;
+							}
+							if(currentSection == id) {
+								currentSectionEnd = newEnd;
+								changePosition(newEnd - 1);
+							}
+						}
+						
+					}
+					celerityData.markers = markers;
+					localStorage.setItem('celerity', JSON.stringify(celerityData));
+					listMarkers();
+					
+
+				})
+			})
+
+			document.querySelectorAll('.inc').forEach(function(el) {
+				el.addEventListener('click', function(e) {
+					var parent = this.parentNode.parentNode.parentNode;
+
+					var id = parent.getAttribute('data-id');
+
+					var markers = celerityData.markers;
+
+					if(this.parentNode.classList.contains('start_time')) {
+						var start = parseInt(parent.getAttribute('data-start'));
+						var newStart = start + 1;
+						
+						var markers = celerityData.markers;
+						for(var i = 0; i < markers.length; i++){
+							var marker = markers[i];
+							if(marker.id == id) {
+								marker.start = newStart;
+							}
+							if(currentSection == id) {
+								currentSectionStart = newStart;
+								changePosition(newStart);
+							}
+						}
+						celerityData.markers = markers;
+						localStorage.setItem('celerity', JSON.stringify(celerityData));
+
+
+					} else {
+						var end = parseInt(parent.getAttribute('data-end'));
+						var newEnd = end + 1;
+						
+						var markers = celerityData.markers;
+						for(var i = 0; i < markers.length; i++){
+							var marker = markers[i];
+							if(marker.id == id) {
+								marker.end = newEnd;
+							}
+							if(currentSection == id) {
+								currentSectionEnd = newEnd;
+								changePosition(newEnd - 1);
+							}
+						}
+						celerityData.markers = markers;
+						localStorage.setItem('celerity', JSON.stringify(celerityData));
+					}
+					listMarkers();
+				})
+			})
+
 		}
 
 		function addMarker() {
@@ -334,7 +540,6 @@ var code = `
 		}
 
 		function updateMarkerName() {
-
 			
 			// update a marker name from localstorage
 			var markers = celerityData.markers;
@@ -397,13 +602,11 @@ var code = `
 			{
 				try {
 					document.querySelector('#main > div > div:nth-child(2)').appendChild(celerity);
-					document.querySelector('#celerity').appendChild(currentSpd);
-					document.querySelector('#celerity').appendChild(markersList);
+					document.querySelector('.add_marker').addEventListener('click', addMarker);
 					listMarkers();
 					if(spotifyElements.length > 0){ 
 						spotifyElements[0].addEventListener('playing', songPlaying(spotifyElements[0]));
 					}
-					
 				} catch {
 					setTimeout(timeout, 100);
 				}
