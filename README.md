@@ -1,4 +1,4 @@
-# Spotity Study
+# Spotify Study
 
 Change the tempo and add markers to Spotify tracks
 
