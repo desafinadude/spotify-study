@@ -1,7 +1,7 @@
 {
   "name": "Spotify Study",
   "description": "Change the tempo and add markers to Spotify tracks",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "permissions": [
     "storage"
   ],

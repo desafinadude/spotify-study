@@ -27,19 +27,16 @@ Change the tempo and add markers to Spotify tracks
 
 ## Issues
 ---
-- You must have a track active in the spotify player. Refresh the page when changing tracks to load markers.(FIX 1.0)
+- You must have a track active in the spotify player. 
 - Pressing play on a marker will only work if you've pressed play at least once on the actual player. (FIX 1.0)
-- If you can see Spotify Study header, but no markers previously added, press `0` to add a marker and reload the list. (FIX 1.0)
 
 ## RoadMap
 ---
-#### 0.9.2
-- Buttons for -/+ speed
-- Marker rename doesn't work - FIX
 
 #### 1.0
 - List all available tracks
 - Init Spotify Study without reload
+- Mobile support
 
 ## Credit
 ---

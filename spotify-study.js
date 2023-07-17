@@ -1,17 +1,23 @@
 /* ======== Start of style string literal ======== */
 var style = `
+
+	.spotify_study_btn {
+		background-color: transparent;
+		border: none;
+
+	}
+
 	.current_speed {
 		color: #fff;
 		font-size: 2em;
 	}
-	#main > div > div:nth-child(2) {
-		grid-template-columns: auto 3fr 1fr;
-	}
-	#main > div > div:nth-child(2) > div:nth-child(4) {
-		grid-area: main-view/main-view/main-view/main-view;
-	}
 	.celerity {
-		grid-area: right-sidebar;
+		position: fixed;
+		top: 0;
+		right: 0;
+		width: 400px;
+		height: ${window.innerHeight - 100}px;
+		z-index: 9;
 		background-color: var(--background-base);
     	border-radius: 8px;
     	cursor: default;
@@ -190,7 +196,7 @@ var code = `
 		var currentSectionStart = null;
 		var currentSectionEnd = null;
 		
-		const addMarkerIcon = '<svg class="add_marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30"><title>plus</title><path fill="#eee" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>';
+		const addMarkerIcon = '<svg class="icon add-marker-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30"><title>plus</title><path fill="#eee" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>';
 
 		const playIcon = '<svg class="icon play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>play</title><path fill="#eee" d="M8,5.14V19.14L19,12.14L8,5.14Z" /></svg>';
 		
@@ -198,27 +204,46 @@ var code = `
 
 		const deleteIcon = '<svg class="icon delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>delete</title><path fill="#eee" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg>';
 
+		const studyIcon = '<svg class="icon spotify-study-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>school</title><path fill="#eee" d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" /></svg>';
+
+
 		/* add Celerity to the page */
 		var celerity = document.createElement('div');
 		celerity.id = 'celerity';
 		celerity.classList.add('celerity');
+		celerity.style.display = 'none';
 		celerity.innerHTML = '\
 			<header>Spotify Study</header> \
 			<div class="controls"> \
 				<div id="current_speed" class="current_speed">' + lastSpeed + 'x</div> \
 				<div class="add_marker">' + addMarkerIcon + '</div> \
 			</div> \
-			<div id="markers_list" class="markers_list"></div>\
+			<ul id="markers_list" class="markers_list"></ul>\
 		';
 
+		/* add Spotify Study load icon to footer */
+		
+		var spotifyStudyBtn = document.createElement('button');
+		spotifyStudyBtn.classList.add('spotify_study_btn');
+		spotifyStudyBtn.innerHTML = studyIcon;
 
-		function calculateTime(seconds) {
-			var minutes = Math.floor(seconds / 60);
-			var seconds = Math.floor(seconds % 60);
-			if(seconds < 10) {
-				seconds = '0' + seconds;
-			}
-			return minutes + ':' + seconds;
+
+
+
+		function calculateTime(duration) {
+
+			// return time as 01:23.34
+			var minutes = parseInt(duration / 60, 10);
+			var seconds = parseInt(duration % 60);
+			var milliseconds = parseInt((duration % 1) * 100, 10);
+
+			minutes = minutes < 10 ? "0" + minutes : minutes;
+			seconds = seconds < 10 ? "0" + seconds : seconds;
+			milliseconds = milliseconds < 10 ? "0" + milliseconds : milliseconds;
+
+			return minutes + ":" + seconds + "." + milliseconds;
+
+
 		}
 		
 		function validateAndChangePosition(value){
@@ -285,21 +310,24 @@ var code = `
 				var marker = currentMarkers[i];
 				var markerElement = document.createElement('li');
 				markerElement.classList.add('marker');
-				markerElement.innerHTML = ' \
-				<div class="marker_layout"> \
+				currentSection == marker.id ? markerElement.classList.add('marker_playing') : '';
+				markerElement.innerHTML = '<div class="marker_layout"> \
 					<div class="marker_play">' + playIcon + '</div> \
 					<div class="marker_name"><div class="marker_title">' + marker.name + '</div></div> \
 					<div class="marker_delete">' + deleteIcon + '</div> \
 					<div class="marker_time_container start_time"> \
 						<div class="dec">-</div> \
-						<div class="time"><div class="marker_start">' + calculateTime(parseInt(marker.start)) + '</div></div> \
+						<div class="time"><div class="marker_start">' + calculateTime(marker.start) + '</div></div> \
 						<div class="inc">+</div> \
 					</div> \
 					<div class="marker_time_container end_time"> \
 						<div class="dec">-</div> \
-						<div class="time"><div class="marker_end">' + calculateTime(parseInt(marker.end)) + '</div></div> \
+						<div class="time"><div class="marker_end">' + calculateTime(marker.end) + '</div></div> \
 						<div class="inc">+</div> \
-					</div>';
+					</div> \
+				</div>';
+				
+				currentSection == marker.id ? markerElement.querySelector('.marker_play').innerHTML = pauseIcon : playIcon;
 				markerElement.setAttribute('data-start', marker.start);
 				markerElement.setAttribute('data-end', marker.end);
 				markerElement.setAttribute('data-id', marker.id);
@@ -362,106 +390,29 @@ var code = `
 			})
 
 			document.querySelectorAll('.dec').forEach(function(el) {
-
 				el.addEventListener('click', function(e) {
-
 					var parent = this.parentNode.parentNode.parentNode;
-
 					var id = parent.getAttribute('data-id');
-
-					var markers = celerityData.markers;
-
-					if(this.parentNode.classList.contains('start_time')) {
-						var start = parseInt(parent.getAttribute('data-start'));
-						var newStart = start - 1;
-						if(newStart < 0) {
-							newStart = 0;
-						}
-						var markers = celerityData.markers;
-						for(var i = 0; i < markers.length; i++){
-							var marker = markers[i];
-							if(marker.id == id) {
-								marker.start = newStart;
-							}
-							if(currentSection == id) {
-								currentSectionStart = newStart;
-								changePosition(newStart);
-							}
-						}
-
-					} else {
-						var end = parseInt(parent.getAttribute('data-end'));
-						var newEnd = end - 1;
-						if(newEnd < 0) {
-							newEnd = 0;
-						}
-						var markers = celerityData.markers;
-						for(var i = 0; i < markers.length; i++){
-							var marker = markers[i];
-							if(marker.id == id) {
-								marker.end = newEnd;
-							}
-							if(currentSection == id) {
-								currentSectionEnd = newEnd;
-								changePosition(newEnd - 1);
-							}
-						}
-						
-					}
-					celerityData.markers = markers;
-					localStorage.setItem('celerity', JSON.stringify(celerityData));
-					listMarkers();
-					
-
+					adjustMarker(id, this.parentNode.classList.contains('start_time') ? 'start' : 'end', 'dec');
 				})
 			})
 
 			document.querySelectorAll('.inc').forEach(function(el) {
 				el.addEventListener('click', function(e) {
 					var parent = this.parentNode.parentNode.parentNode;
-
 					var id = parent.getAttribute('data-id');
+					adjustMarker(id, this.parentNode.classList.contains('start_time') ? 'start' : 'end', 'inc');
+				})
+			})
 
-					var markers = celerityData.markers;
-
-					if(this.parentNode.classList.contains('start_time')) {
-						var start = parseInt(parent.getAttribute('data-start'));
-						var newStart = start + 1;
-						
-						var markers = celerityData.markers;
-						for(var i = 0; i < markers.length; i++){
-							var marker = markers[i];
-							if(marker.id == id) {
-								marker.start = newStart;
-							}
-							if(currentSection == id) {
-								currentSectionStart = newStart;
-								changePosition(newStart);
-							}
-						}
-						celerityData.markers = markers;
-						localStorage.setItem('celerity', JSON.stringify(celerityData));
-
-
-					} else {
-						var end = parseInt(parent.getAttribute('data-end'));
-						var newEnd = end + 1;
-						
-						var markers = celerityData.markers;
-						for(var i = 0; i < markers.length; i++){
-							var marker = markers[i];
-							if(marker.id == id) {
-								marker.end = newEnd;
-							}
-							if(currentSection == id) {
-								currentSectionEnd = newEnd;
-								changePosition(newEnd - 1);
-							}
-						}
-						celerityData.markers = markers;
-						localStorage.setItem('celerity', JSON.stringify(celerityData));
+			document.querySelectorAll('.marker_name').forEach(function(el) {
+				el.addEventListener('click', function(e) {
+					var parent = this.parentNode.parentNode;
+					var id = parent.getAttribute('data-id');
+					var name = prompt('Enter a name for this marker');
+					if(name){
+						updateMarkerName(id, name);
 					}
-					listMarkers();
 				})
 			})
 
@@ -508,47 +459,116 @@ var code = `
 		}
 
 		function adjustMarker(id, startend, direction) {
-			// adjust a marker from localstorage
-			var markers = celerityData.markers;
-			for(var i = 0; i < markers.length; i++){
-				var marker = markers[i];
-				if(marker.id == id){
 
-					if(startend == 'start'){
-						if(direction == 'up'){
-							marker.start = marker.start + 1;
-						} else {
-							marker.start = marker.start - 1;
-						}
-						currentSectionStart = marker.start;
-					} else {
-						if(direction == 'up'){
-							marker.end = marker.end + 1;
-						} else {
-							marker.end = marker.end - 1;
-						}
-						currentSectionEnd = marker.end;
+			// DECREASE
+
+			if(direction == 'dec') {
+
+				if(startend == 'start') {
+					var start = parseFloat(document.querySelector('[data-id="' + id + '"]').getAttribute('data-start'));
+					var newStart = start - 0.1;
+					if(newStart < 0) {
+						newStart = 0;
 					}
-
-
-				
+					var markers = celerityData.markers;
+					for(var i = 0; i < markers.length; i++){
+						var marker = markers[i];
+						if(marker.id == id) {
+							marker.start = newStart;
+						}
+						if(currentSection == id) {
+							currentSectionStart = newStart;
+							changePosition(newStart);
+						}
+					}
+				} else {
+					var end = parseFloat(document.querySelector('[data-id="' + id + '"]').getAttribute('data-end'));
+					var newEnd = end - 0.1;
+					if(newEnd <= parseFloat(document.querySelector('[data-id="' + id + '"]').getAttribute('data-start'))) {
+						newEnd = end;
+					}
+					var markers = celerityData.markers;
+					for(var i = 0; i < markers.length; i++){
+						var marker = markers[i];
+						if(marker.id == id) {
+							marker.end = newEnd;
+						}
+						if(currentSection == id) {
+							currentSectionEnd = newEnd;
+							changePosition(newEnd - 1);
+						}
+					}
+					
 				}
+
+			} else {
+
+			// INCREASE
+
+				if(startend == 'start') {
+					var start = parseFloat(document.querySelector('[data-id="' + id + '"]').getAttribute('data-start'));
+					var newStart = start + 0.1;
+
+					if(newStart >= parseFloat(document.querySelector('[data-id="' + id + '"]').getAttribute('data-end'))) {
+						newStart = start;
+					}
+					
+					var markers = celerityData.markers;
+					for(var i = 0; i < markers.length; i++){
+						var marker = markers[i];
+						if(marker.id == id) {
+							marker.start = newStart;
+						}
+						if(currentSection == id) {
+							currentSectionStart = newStart;
+							changePosition(newStart);
+						}
+					}
+					celerityData.markers = markers;
+					localStorage.setItem('celerity', JSON.stringify(celerityData));
+
+
+				} else {
+					var end = parseFloat(document.querySelector('[data-id="' + id + '"]').getAttribute('data-end'));
+					var newEnd = end + 0.1;
+
+					if(newEnd > spotifyElements[0].duration) {
+						newEnd = end;
+					}
+					
+					var markers = celerityData.markers;
+					for(var i = 0; i < markers.length; i++){
+						var marker = markers[i];
+						if(marker.id == id) {
+							marker.end = newEnd;
+						}
+						if(currentSection == id) {
+							currentSectionEnd = newEnd;
+							changePosition(newEnd - 0.1);
+						}
+					}
+					celerityData.markers = markers;
+					localStorage.setItem('celerity', JSON.stringify(celerityData));
+				}
+
 			}
+
 			celerityData.markers = markers;
 			localStorage.setItem('celerity', JSON.stringify(celerityData));
 			listMarkers();
+
 		}
 
-		function updateMarkerName() {
-			
-			// update a marker name from localstorage
+		function updateMarkerName(id, name) {
+
 			var markers = celerityData.markers;
 			for(var i = 0; i < markers.length; i++){
 				var marker = markers[i];
-				if(marker.id == currentSection){
-					marker.name = document.querySelector('.marker_playing .marker_title').innerHTML;
+				if(marker.id == id) {
+					marker.name = name;
 				}
 			}
+
 			celerityData.markers = markers;
 			localStorage.setItem('celerity', JSON.stringify(celerityData));
 			listMarkers();
@@ -557,41 +577,44 @@ var code = `
 
 
 		document.addEventListener('keydown', function(event) {
+
 			switch (event.key) {
-			case '-':
-				var speedPosition = speeds.indexOf(lastSpeed);
-				if(speedPosition > 0){
-					validateAndChangeSpeed(speeds[speedPosition - 1]);
-				}
-				break;
-			case '+':
-				var speedPosition = speeds.indexOf(lastSpeed);
-				if(speedPosition < speeds.length - 1){
-					validateAndChangeSpeed(speeds[speedPosition + 1]);
-				}
-				break;
-			case '*':
-				validateAndChangeSpeed(1.0);
-				break;
-			case '0':
-				addMarker();
-				break;
-			case 'Delete':
-				deleteMarker(currentSection);
-				break;
-			case 'ArrowLeft':
-				adjustMarker(currentSection, 'start', 'down');
-				break;
-			case 'ArrowRight':
-				adjustMarker(currentSection, 'start', 'up');
-				break;
-			case 'ArrowUp':
-				adjustMarker(currentSection, 'end', 'up');
-				break;
-			case 'ArrowDown':
-				adjustMarker(currentSection, 'end', 'down');
-				break;
+				case '-':
+					var speedPosition = speeds.indexOf(lastSpeed);
+					if(speedPosition > 0){
+						validateAndChangeSpeed(speeds[speedPosition - 1]);
+					}
+					break;
+				case '+':
+					var speedPosition = speeds.indexOf(lastSpeed);
+					if(speedPosition < speeds.length - 1){
+						validateAndChangeSpeed(speeds[speedPosition + 1]);
+					}
+					break;
+				case '*':
+					validateAndChangeSpeed(1.0);
+					break;
+				case '0':
+					addMarker();
+					break;
+				case 'Delete':
+					deleteMarker(currentSection);
+					break;
+				case 'ArrowLeft':
+					adjustMarker(currentSection, 'start', 'dec', true);
+					break;
+				case 'ArrowRight':
+					adjustMarker(currentSection, 'start', 'inc', true);
+					break;
+				case 'ArrowUp':
+					adjustMarker(currentSection, 'end', 'inc', true);
+					break;
+				case 'ArrowDown':
+					adjustMarker(currentSection, 'end', 'dec', true);
+					break;
 			}
+		
+
 		});
 
 		
@@ -602,8 +625,18 @@ var code = `
 			{
 				try {
 					document.querySelector('#main > div > div:nth-child(2)').appendChild(celerity);
+					document.querySelector('footer > div > div:nth-child(3) > div').appendChild(spotifyStudyBtn);
+					document.querySelector('.spotify_study_btn').addEventListener('click', function(){
+						if(document.getElementById('celerity').style.display == 'none'){
+							document.getElementById('celerity').style.display = 'block';
+							listMarkers();
+						} else {
+							document.getElementById('celerity').style.display = 'none';
+						}
+					})
+
 					document.querySelector('.add_marker').addEventListener('click', addMarker);
-					listMarkers();
+					
 					if(spotifyElements.length > 0){ 
 						spotifyElements[0].addEventListener('playing', songPlaying(spotifyElements[0]));
 					}
