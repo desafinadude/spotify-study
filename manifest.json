@@ -11,7 +11,7 @@
   "content_scripts": [
     {
       "matches": ["https://open.spotify.com/*"],
-      "js": ["spotify-study.js"]
+      "js": ["dist/bundle.js"]
     }
   ],
   "manifest_version": 2

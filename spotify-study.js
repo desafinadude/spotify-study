@@ -4,13 +4,13 @@ var style = `
 	.spotify_study_btn {
 		background-color: transparent;
 		border: none;
-
 	}
 
 	.current_speed {
 		color: #fff;
 		font-size: 2em;
 	}
+
 	.celerity {
 		position: fixed;
 		top: 0;
@@ -23,6 +23,7 @@ var style = `
     	cursor: default;
 		padding: 8px 16px;
 	}
+
 	.celerity header {
 		font-weight: bold;
 	}
@@ -40,8 +41,6 @@ var style = `
 		color: #fff;
 		font-weight: bold;
 	}
-
-	
 
 	.inc, .dec {
 		background: #666;
@@ -116,8 +115,6 @@ var style = `
 		grid-area: marker_delete;
 		justify-self: end; 
 	}
-
-	
 	  
 	.start_time { 
 		grid-area: start_time; 
@@ -161,13 +158,12 @@ var style = `
 		align-self: center;  
 	}
 
-	  
-
 `;
 
 
 /* ======== Start of code string literal ======== */
 var code = `
+
 	var base = document.createElement; /* A backup reference to the browser's original document.createElement */
 	var spotifyElements = []; /* Array of video/audio elements made by spotify's scripts */
 	
@@ -180,15 +176,13 @@ var code = `
 		/* ignores the many document.createElement('div'), document.createElement('nav'), ect... */
 		if(message == 'video' || message == 'audio'){ /* Checking if spotify scripts are making a video or audio element */
 			spotifyElements.push(element);
-			
-
 		}
 		return element /* return the element and complete the loop so the page is allowed to be made */
 	};
 	
 	
 	window.onload = function() {
-		
+
 		const speeds = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 		var celerityData = JSON.parse(localStorage.getItem('celerity'));
 		var lastSpeed = celerityData ? celerityData.lastSpeed : 1.0;
@@ -228,8 +222,6 @@ var code = `
 		spotifyStudyBtn.innerHTML = studyIcon;
 
 
-
-
 		function calculateTime(duration) {
 
 			// return time as 01:23.34
@@ -265,8 +257,10 @@ var code = `
 				spotifyElements[i].playbackRate = val; 
 				if(val != lastSpeed){ 
 					lastSpeed = val;
+					let currentSpd = document.getElementById('current_speed');
 					currentSpd.innerHTML = val + 'x';
-					setStoredSpeed(val);
+					celerityData.lastSpeed = val;
+					localStorage.setItem('celerity', JSON.stringify(celerityData));
 				}
 			}
 		}
@@ -279,6 +273,7 @@ var code = `
 
 		
 		function songPlaying() {
+
 			const checkCurrentTime = setInterval(function() {
 				if(currentSection) {
 					for(var i = 0; i < spotifyElements.length; i++){
@@ -620,7 +615,11 @@ var code = `
 		
 
 		
-		function timeout() { /* This function is called by itself over and over */
+		function timeout() { 
+
+
+
+
 			if(document.getElementById('celerity') == null) 
 			{
 				try {
@@ -637,7 +636,7 @@ var code = `
 
 					document.querySelector('.add_marker').addEventListener('click', addMarker);
 					
-					if(spotifyElements.length > 0){ 
+					if(spotifyElements.length > 0){
 						spotifyElements[0].addEventListener('playing', songPlaying(spotifyElements[0]));
 					}
 				} catch {
@@ -646,7 +645,6 @@ var code = `
 			}
 			setTimeout(function () { 
 				try {
-					validateAndChangeSpeed(lastSpeed); 
 					songPlaying();
 				} catch {
 					
@@ -660,6 +658,7 @@ var code = `
 /* ======== End of code string literal ======== */
 var script = document.createElement('script');
 script.textContent = code; 
+script.type = 'module';
 document.body.appendChild(script); 
 var styles = document.createElement('style'); 
 styles.textContent = style; 
