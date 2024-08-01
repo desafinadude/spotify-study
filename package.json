@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build": "webpack"
+  },
   "dependencies": {
     "pitchy": "^4.0.7",
     "webpack": "^5.88.2",

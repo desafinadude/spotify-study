@@ -16,8 +16,9 @@ var style = `
 		top: 0;
 		right: 0;
 		width: 400px;
-		height: ${window.innerHeight - 100}px;
+		height: ${window.innerHeight - 88}px;
 		z-index: 9;
+		overflow: hidden;
 		background-color: var(--background-base);
     	border-radius: 8px;
     	cursor: default;
@@ -30,6 +31,9 @@ var style = `
 
 	.markers_list {
 		list-style: none;
+		overflow-y: scroll;
+		overflow-x: hidden;
+		height: 100%;
 	}
 
 	.marker {
@@ -37,9 +41,16 @@ var style = `
 		border-radius: 5px;
 	}
 
+	.marker * {
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+
 	.marker_title {
 		color: #fff;
-		font-weight: bold;
+		font-weight: 400;
 	}
 
 	.inc, .dec {
@@ -190,15 +201,15 @@ var code = `
 		var currentSectionStart = null;
 		var currentSectionEnd = null;
 		
-		const addMarkerIcon = '<svg class="icon add-marker-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30"><title>plus</title><path fill="#eee" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>';
+		const addMarkerIcon = '<svg class="icon add-marker-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30"><title>Add Marker</title><path fill="#eee" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>';
 
-		const playIcon = '<svg class="icon play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>play</title><path fill="#eee" d="M8,5.14V19.14L19,12.14L8,5.14Z" /></svg>';
+		const playIcon = '<svg class="icon play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>Play</title><path fill="#eee" d="M8,5.14V19.14L19,12.14L8,5.14Z" /></svg>';
 		
-		const pauseIcon = '<svg class="icon pause-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>pause</title><path fill="#eee" d="M14,19H18V5H14M6,19H10V5H6V19Z" /></svg>';
+		const pauseIcon = '<svg class="icon pause-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>Pause</title><path fill="#eee" d="M14,19H18V5H14M6,19H10V5H6V19Z" /></svg>';
 
-		const deleteIcon = '<svg class="icon delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>delete</title><path fill="#eee" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg>';
+		const deleteIcon = '<svg class="icon delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>Delete</title><path fill="#eee" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg>';
 
-		const studyIcon = '<svg class="icon spotify-study-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>school</title><path fill="#eee" d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" /></svg>';
+		const studyIcon = '<svg class="icon spotify-study-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><title>Open Spotify Study</title><path fill="#eee" d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" /></svg>';
 
 
 		/* add Celerity to the page */

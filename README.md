@@ -30,7 +30,7 @@ To get started. Press the **Academic Cap** next to the volume slider.
 
 `UpArrow` : Adjust playing section end time by +0.1 seconds
 
-`DownArrow` : Adjust playing section send time by -0.1 seconds
+`DownArrow` : Adjust playing section end time by -0.1 seconds
 
 ## Issues
 ---
